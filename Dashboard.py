@@ -12,13 +12,10 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 
 fl = st.file_uploader(":file_folder: Upload a file",type=(["csv","txt","xlsx","xls"]))
 if fl is not None:
-    filename = fl.name
-    st.write(filename)
-    df = pd.read_excel(filename)
+    df = pd.read_excel(fl)
 else:
-    os.chdir(r"C:\Users\Adii")
     df = pd.read_excel("Superstore.xls")
-
+    
 col1, col2 = st.columns((2))
 df["Order Date"] = pd.to_datetime(df["Order Date"])
 

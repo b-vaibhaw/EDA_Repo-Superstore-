@@ -122,12 +122,10 @@ sales_forecast = filtered_df[["Order Date", "Sales"]].rename(columns={"Order Dat
 model = Prophet()
 model.fit(sales_forecast)
 
-# Future Dataframe
 future = model.make_future_dataframe(periods=6, freq='M')  # Predicting next 6 months
 forecast = model.predict(future)
 
-# Plotting
-st.subheader("📈 Future Sales Forecast (Next 6 Months)")
+st.subheader("Future Sales Forecast (Next 6 Months)")
 fig4 = px.line(forecast, x="ds", y="yhat", title="Forecasted Sales", labels={"ds": "Date", "yhat": "Predicted Sales"}, template="plotly_white")
 fig4.add_scatter(x=sales_forecast["ds"], y=sales_forecast["y"], mode="markers", name="Actual Sales")
 
@@ -140,8 +138,8 @@ with st.expander("Forecast Data"):
     forecast_csv = forecast[["ds", "yhat", "yhat_lower", "yhat_upper"]].to_csv(index=False).encode('utf-8')
     st.download_button("Download Forecast", data=forecast_csv, file_name="forecast.csv", mime="text/csv")
 
-# --- Automated Business Report Generation ---
-st.subheader("📝 Automated Business Report")
+
+st.subheader("Automated Business Report")
 
 # 1. Get recent total sales and forecasted future sales
 actual_sales_total = sales_forecast['y'].sum()
@@ -149,30 +147,23 @@ future_sales_total = forecast[forecast['ds'] > sales_forecast['ds'].max()]['yhat
 
 # 2. Sales difference
 sales_growth = ((future_sales_total - actual_sales_total) / actual_sales_total) * 100
-
-# 3. Best region
 best_region = filtered_df.groupby('Region')['Sales'].sum().idxmax()
-
-# 4. Best category
 best_category = filtered_df.groupby('Category')['Sales'].sum().idxmax()
-
-# 5. Worst-performing sub-category
 worst_subcat = filtered_df.groupby('Sub-Category')['Profit'].sum().idxmin()
 
-# 6. Generate summary
 report = f"""
-**📌 Key Insights**
+**Key Insights**
 
 - Total Past Sales: ${actual_sales_total:,.2f}
 - Projected Sales (Next 6 Months): ${future_sales_total:,.2f}
-- 📈 Expected Sales Growth: {sales_growth:.2f}%
+- Expected Sales Growth: {sales_growth:.2f}%
 
-**📍 Performance Highlights**
-- 🏆 Best Performing Region: **{best_region}**
-- 💡 Top-Selling Category: **{best_category}**
-- ⚠️ Least Profitable Sub-Category: **{worst_subcat}**
+**Performance Highlights**
+- Best Performing Region: **{best_region}**
+- Top-Selling Category: **{best_category}**
+- Least Profitable Sub-Category: **{worst_subcat}**
 
-**📈 Recommendations**
+**Recommendations**
 - Invest more in **{best_category}** category promotions.
 - Focus on **{best_region}** region for expansion.
 - Investigate **{worst_subcat}** sub-category for cost reduction or replacement.
